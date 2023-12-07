@@ -5,11 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default async (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  console.log({authHeader});
-
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
+  if (req.cookies.jwt) {
+    const token = req.cookies.jwt;
     const secret = new TextEncoder().encode(process.env.secret);
 
     try {
@@ -17,9 +14,9 @@ export default async (req, res, next) => {
       console.log(payload);
       next();
     } catch(err) {
-      res.status(401).json({error: 401, message: 'Invalid token!'})
+      res.status(401).json({error: 401, message: 'Your token has expired!'})
     }
   } else {
-    res.status(403).json({error: 403, message: 'authorization header not found'});
+    res.status(403).json({error: 403, message: 'JWT cookie not found'});
   }
 }

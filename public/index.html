@@ -23,12 +23,17 @@
   </style>
 </head>
 <body>
-    <h1>JWT authentication for SPAs</h1>
-    <p><a href="https://github.com/smohadjer/jwt-js">GitHub</a></p>
-    <p>In this example we implement jwt authentication via Bearer authorization header and without using a cookie. To sign and verify JWT token on server we use <a href="https://www.npmjs.com/package/jose">jose</a> library rather than <a href="https://www.npmjs.com/package/jsonwebtoken">jsonwebtoken</a> library as jose does not depend on Node.js, hence allowing us to use it on Vercel's Edge runtime.</p>
+    <h1>JWT authentication via HttpOnly Cookie</h1>
+    <p><a href="https://github.com/smohadjer/jwt-cookie">GitHub</a></p>
+    <p>In this example we implement jwt authentication via HttpOnly cookie rather than via Bearer authorization header. This approach has two advantages to setting Bearer authoorization header via JavaScript:</p>
+    <ul>
+      <li>Reloading the page will not remove token.</li>
+      <li>Token is not exposed to JavaScript hence safe from cross-site scripting attack.</li>
+    </ul>
+    <p>To sign and verify JWT token on server we use <a href="https://www.npmjs.com/package/jose">jose</a> library rather than <a href="https://www.npmjs.com/package/jsonwebtoken">jsonwebtoken</a> library as jose does not depend on Node.js, hence allowing us to use it on Vercel's Edge runtime.</p>
     <p><a id="api-link" href="/api/test">Access API</a> (if you are not authenticated you will get an error)</p>
     <div id="api-status"></div>
-    <p>To remove token simply refresh the page.</p>
+    <p>To remove token use your browser's developer tools to find and delete "jwt" cookie.</p>
     <form style="background: #eee; padding: 0.5em 1em 1em;" method="POST" action="/api/authenticate">
       <p><label>Username: <input required name="username" value="admin"></label></p>
       <p><label>Password: <input required name="password" value="test"></label></p>
@@ -39,33 +44,29 @@
     <script type="module">
       const formStatusElm = document.getElementById('form-status');
       const apiStatusElm = document.getElementById('api-status');
-      let accessToken;
 
       // click handler for api link
       document.getElementById('api-link').addEventListener('click', async (e) => {
         e.preventDefault();
-        console.log({accessToken});
 
-        if (accessToken) {
-          apiStatusElm.innerHTML = '<p><span class="loading" style="margin-right: 0.5em; vertical-align: text-bottom"></span> Calling API...</p>';
-        } else {
-          apiStatusElm.innerHTML = '<p style="color:red">No access token found!</p>';
-          return;
-        }
+        console.log('cookie: ', document.cookie);
+
+        apiStatusElm.innerHTML = '<p><span class="loading" style="margin-right: 0.5em; vertical-align: text-bottom"></span> Calling API...</p>';
 
         fetch('/api/test', {
           method: 'GET',
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' +  accessToken,
             'Content-Type': 'application/json'
           }
         })
         .then((response) => response.json())
-        .then(async (json) => {
+        .then((json) => {
           if (json.error) {
             formStatusElm.innerHTML = '<p>Authenticate to fetch a new access token</p>';
             apiStatusElm.innerHTML = `<p style="color:red">${json.message}</p>`;
           } else {
+            console.log(json);
             apiStatusElm.innerHTML = `<p>${JSON.stringify(json)}</p>`;
           }
         }).catch(function(err) {
@@ -91,7 +92,8 @@
         })
         .then((response) => response.json())
         .then((json) => {
-          accessToken = json.token;
+
+          //accessToken = json.token;
           formStatusElm.innerHTML = '<p style="color: green;">Access to API granted for 1 min.</p>';
 
           // reset form
