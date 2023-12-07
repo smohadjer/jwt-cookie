@@ -1,18 +1,18 @@
 # JWT authentication via HttpOnly Cookie
 
-On Vercel Edge runtime:
-https://jwt-cookie-saeid-fastmailfm.vercel.app/
+## Demo
+- https://jwt-cookie.onrender.com/
+- https://jwt-cookie-saeid-fastmailfm.vercel.app/ (serverless)
 
-On Render:
-https://jwt-cookie.onrender.com/
-
-Run on localhost via npm:
+## Localhost
+via npm:
 ````
+npm install
 npm run dev-express
 ````
-
-or if you have Vercel CLI installed:
+via vercel cli (serverless):
 ````
+npm install
 vercel dev
 ````
 
