@@ -1,4 +1,4 @@
-# JWT Authentication using Jose library and Fetch API (no cookie)
+# JWT authentication via HttpOnly Cookie
 
 On Vercel Edge runtime:
 https://jwt-js-saeid-fastmailfm.vercel.app/
@@ -11,7 +11,7 @@ Run on localhost via npm:
 npm run dev-express
 ````
 
-Or if you have Vercel CLI installed:
+or if you have Vercel CLI installed:
 ````
 vercel dev
 ````
