@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JWT fro SPA</title>
+  <style>
+    .loading {
+      width: 1em;
+      height: 1em;
+      border: 0.2em solid #999;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: loadingspin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes loadingspin {
+      100% {
+          transform: rotate(360deg)
+      }
+    }
+  </style>
+</head>
+<body>
+    <h1>JWT authentication for SPAs</h1>
+    <p><a href="https://github.com/smohadjer/jwt-js">GitHub</a></p>
+    <p>In this example we implement jwt authentication via Bearer authorization header and without using a cookie. To sign and verify JWT token on server we use <a href="https://www.npmjs.com/package/jose">jose</a> library rather than <a href="https://www.npmjs.com/package/jsonwebtoken">jsonwebtoken</a> library as jose does not depend on Node.js, hence allowing us to use it on Vercel's Edge runtime.</p>
+    <p><a id="api-link" href="/api/test">Access API</a> (if you are not authenticated you will get an error)</p>
+    <div id="api-status"></div>
+    <p>To remove token simply refresh the page.</p>
+    <form style="background: #eee; padding: 0.5em 1em 1em;" method="POST" action="/api/authenticate">
+      <p><label>Username: <input required name="username" value="admin"></label></p>
+      <p><label>Password: <input required name="password" value="test"></label></p>
+      <button>Authenticate</button>
+      <div id="form-status"></div>
+    </form>
+
+    <script type="module">
+      const formStatusElm = document.getElementById('form-status');
+      const apiStatusElm = document.getElementById('api-status');
+      let accessToken;
+
+      // click handler for api link
+      document.getElementById('api-link').addEventListener('click', async (e) => {
+        e.preventDefault();
+        console.log({accessToken});
+
+        if (accessToken) {
+          apiStatusElm.innerHTML = '<p><span class="loading" style="margin-right: 0.5em; vertical-align: text-bottom"></span> Calling API...</p>';
+        } else {
+          apiStatusElm.innerHTML = '<p style="color:red">No access token found!</p>';
+          return;
+        }
+
+        fetch('/api/test', {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' +  accessToken,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then((response) => response.json())
+        .then(async (json) => {
+          if (json.error) {
+            formStatusElm.innerHTML = '<p>Authenticate to fetch a new access token</p>';
+            apiStatusElm.innerHTML = `<p style="color:red">${json.message}</p>`;
+          } else {
+            apiStatusElm.innerHTML = `<p>${JSON.stringify(json)}</p>`;
+          }
+        }).catch(function(err) {
+            console.error(` Err: ${err}`);
+        });
+      })
+
+      // submit handler for login form
+      document.querySelector('form').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        formStatusElm.innerHTML = '<p><span class="loading" style="margin-right: 0.5em; vertical-align: text-bottom"></span>Fetching access token...</p>';
+
+        const data = new FormData(e.target);
+
+        fetch(e.target.action, {
+          method: e.target.getAttribute('method'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(Object.fromEntries(data))
+        })
+        .then((response) => response.json())
+        .then((json) => {
+          accessToken = json.token;
+          formStatusElm.innerHTML = '<p style="color: green;">Access to API granted for 1 min.</p>';
+
+          // reset form
+          e.target.reset();
+        }).catch(function(error) {
+            console.error(` Error: ${error}`);
+            accessToken = undefined;
+            formStatusElm.innerHTML = '<p>Wrong credentials. Use "admin" for username and "test" for password</p>';
+        });
+      });
+    </script>
+</body>
+</html>

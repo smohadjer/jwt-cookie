@@ -1,0 +1,3 @@
+GET http://localhost:3001/api/test.js
+Content-Type: application/json
+Authorization: Bearer putYourJWTTokenHere
