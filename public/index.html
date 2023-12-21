@@ -55,7 +55,6 @@
 
         fetch('/api/test', {
           method: 'GET',
-          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json'
           }
@@ -92,15 +91,11 @@
         })
         .then((response) => response.json())
         .then((json) => {
-
-          //accessToken = json.token;
-          formStatusElm.innerHTML = '<p style="color: green;">Access to API granted for 1 min.</p>';
-
+          formStatusElm.innerHTML = '<p style="color: green;">Access to API granted for 30s.</p>';
           // reset form
           e.target.reset();
         }).catch(function(error) {
             console.error(` Error: ${error}`);
-            accessToken = undefined;
             formStatusElm.innerHTML = '<p>Wrong credentials. Use "admin" for username and "test" for password</p>';
         });
       });
