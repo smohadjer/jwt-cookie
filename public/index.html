@@ -63,7 +63,7 @@
         .then((json) => {
           if (json.error) {
             formStatusElm.innerHTML = '<p>Authenticate to fetch a new access token</p>';
-            apiStatusElm.innerHTML = `<p style="color:red">${json.message}</p>`;
+            apiStatusElm.innerHTML = `<p style="color:red">${json.error}</p>`;
           } else {
             console.log(json);
             apiStatusElm.innerHTML = `<p>${JSON.stringify(json)}</p>`;

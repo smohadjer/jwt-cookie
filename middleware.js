@@ -16,14 +16,14 @@ export default async function middleware(req) {
       console.log(payload);
     } catch(err) {
       return Response.json(
-        { error: 401, message: 'Your token has expired!' },
+        { error: 'Your token has expired!' },
         { status: 401 }
       )
     }
   } else {
     return Response.json(
-      { error: 403, message: 'JWT cookie not found'},
-      { status: 403 }
+      { error: 'JWT cookie not found'},
+      { status: 401 }
     );
   }
 }
