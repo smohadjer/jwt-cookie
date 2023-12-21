@@ -8,7 +8,7 @@
 via npm:
 ````
 npm install
-npm run dev-express
+npm run dev
 ````
 via vercel cli (serverless):
 ````
